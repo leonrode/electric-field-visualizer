@@ -1,6 +1,12 @@
 class Calculator {
+    /**
+     * Creates the main object responsible for computation.
+     * 
+     * @param {number} width The width of the screen
+     * @param {number} height The height of the screen
+     */
     constructor(width, height) {
-        this.STEP_SIZE = 5; // step 5 pixels in given direction
+        this.STEP_SIZE = 10; // step 5 pixels in given direction
         this.charges = [];
         this.pointSets = [];
 
@@ -8,18 +14,27 @@ class Calculator {
         this.height = height;
 
         this.STROKE_COLOR = [0, 255, 0];
-
     }
 
+
+    /**
+     * Resets the computed point sets in order to restart the computation of the field lines
+     */
     resetPointSets() {
         this.pointSets.length = 0;
     }
+    /**
+     * Adds a charge to be accounted for in drawing the field lines
+     * @param {Charge} charge 
+     */
     addCharge(charge) {
         this.charges.push(charge);
     }
 
+    /**
+     * Displays the charges and draws the curves interpolating the computed point sets
+     */
     display() {
-        
         for (const charge of this.charges) charge.display();
         
         for (const pointSet of this.pointSets) {
@@ -34,7 +49,7 @@ class Calculator {
                 if (control1 && anchor1 && anchor2 && control2)
                     curve(...control1, ...anchor1, ...anchor2, ...control2);
                 
-                // draw directional triangle
+                // draw a directed triangle halfway along the point set
                 if (i == Math.floor(pointSet.length / 2)) {
                     const dx = anchor1[0] - control1[0];
                     const dy = anchor1[1] - control1[1];
@@ -45,13 +60,17 @@ class Calculator {
                     triangle(...control2, ...p2, ...p3);
                 }
             }
-            // for (const point of pointSet) {
-            //     circle(point[0], point[1], 2);
-            // }
         }
     }
 
-    isInSink(x, y) {
+    /**
+     * Determines whether a given point lies inside of a negative charge
+     * 
+     * @param {number} x The x coordinate of the tested point
+     * @param {number} y The y coordinate of the tested point
+     * @returns Returns true if the condition described is satisfied, false otherwise
+     */
+    isInNegativeCharge(x, y) {
         for (const charge of this.charges) {
             if (charge.charge < 0 && dist(x, y, charge.x, charge.y) < charge.size / 2) {                
                 return true;
@@ -61,19 +80,29 @@ class Calculator {
         return false;
     }
 
+    /**
+     * Determines whether the given point is out of the screen's bounds
+     * 
+     * @param {number} x The x coordinate of the tested point
+     * @param {number} y The y coordinate of the tested point
+     * @returns Returns true if the condition described is satisfied, false otherwise.
+     */
     isOffScreen(x, y) {
         return (x < 0 || x > this.width || y < 0 || y > this.height);
     }
 
+    /**
+     * Determines the direction of the net electric field at a point (x, y)
+     * 
+     * @param {number} x The x coordinate of the chosen point
+     * @param {number} y The y coordinate of the chosen point
+     * @returns The angle [0, 2*pi) formed by the electric field vector and the unit vector in the positive x direction, increasing counterclockwise.
+     */
     computeFieldDirection(x, y) {
         let netX = 0;
         let netY = 0;
 
-
         for (const charge of this.charges) {
-            // if positive positive, vector points towards currX, currY
-            // if negative charge, vector points towards charge
-
             const fieldStrength = 999 * Math.pow(10, 9) * charge.charge / (Math.pow(dist(charge.x, charge.y, x, y), 2));
             let r = [x - charge.x, y - charge.y]
             
@@ -84,27 +113,26 @@ class Calculator {
             
             netX += r[0] * fieldStrength;
             netY += r[1] * fieldStrength;
-
-            
-
         }
 
-        
-        // now we have the net vector, and we want to compute the angle
-        // at which to move
-
-        const magnitude = Math.sqrt(netX * netX + netY * netY)
+        const magnitude = Math.sqrt(netX * netX + netY * netY);
         let angle = Math.acos(netX / magnitude);
+
         if (netY < 0) {
             angle = 2 * PI - angle;
         }
-        console.log(angle);
-        
         
         return angle;
         
     }
 
+    /**
+     * Determines rudimentarily whether arrays a and b are equal (contain the same elements in the same order).
+     * 
+     * @param {Array} a 
+     * @param {Array} b 
+     * @returns Returns true if the condition described is satisfied, false otherwise
+     */
     arraysEqual(a, b) {
         if (a.length !== b.length) return false;
 
@@ -116,7 +144,14 @@ class Calculator {
     }
 
 
-
+    /**
+     * Determines whether exactly two of the three given arrays are equal.
+     * 
+     * @param {Array} a 
+     * @param {Array} b 
+     * @param {Array} c 
+     * @returns Returns true if the condition described is satisfied, false otherwise
+     */
     twoOfThreeEqual(a, b, c) {
         if (this.arraysEqual(a, b) && !this.arraysEqual(b, c) || this.arraysEqual(b, c) && !this.arraysEqual(a, c) || this.arraysEqual(a, c) && !this.arraysEqual(b, c)) {
             return true;
@@ -124,22 +159,16 @@ class Calculator {
         return false;
     }
 
+    /**
+     * Computes the points along a field line. Depending on the magnitude of the charge, we begin sampling points outwardly from the charge and compute the net electric field due to all the charges at the point.
+     * Then step in the direction of the electric field vector by a pre-determined offset, until the point is in a negative charge, or until the point is off the canvas.
+     */
     computeFieldPoints() {
         this.resetPointSets();
-        for (const charge of this.charges) {
-            // depending on the magnitude of the charge,
-            // we begin sampling points outwardly from the charge
-            // and computing the net electric field due to all the charges.
-            // depending on the sample density, we step in the direction
-            // of the electric field vector, until the point is in a sink, or until
-            // the point is off the canvas. once the set of points is establishsed,
-            // we connect them using spline curves
-            
+        for (const charge of this.charges) {      
             const numPoints = Math.floor(charge.charge / 2) * 4;
             
             for (let i = 0; i < numPoints; i++) {
-                
-                
                 let set = [];
 
                 // compute position of initial point and draw it
@@ -148,25 +177,19 @@ class Calculator {
 
                 set.push([x, y]);
                 
-                let j = 0;
-                while (!this.isOffScreen(x, y) && !this.isInSink(x, y)) {
-                    console.log(`charge type: ${charge.charge > 0}`);
-                    
-                    j++;
-                    // compute field direction
-                    // move into that direction
-                    // add point into set
-      
+                while (!this.isOffScreen(x, y) && !this.isInNegativeCharge(x, y)) {
                     const direction = this.computeFieldDirection(x, y);
 
                     const newX = x + this.STEP_SIZE * Math.cos(direction);
                     const newY = y + this.STEP_SIZE * Math.sin(direction);
 
                     set.push([newX, newY]);
-
+                    
+                    // Detect if points begin to oscillate about an asymptote (where an electric field is zero)
                     const a = set.at(-1);
                     const b = set.at(-2);
                     const c = set.at(-3);
+
                     if (set.length > 3) {
                         if (this.twoOfThreeEqual(a, b, c) || a.some(isNaN) || b.some(isNaN) || c.some(isNaN)) {
                             set.length = 0;
@@ -176,23 +199,12 @@ class Calculator {
 
                     x = newX;
                     y = newY;
-
-                    
-
-
                 }
 
                 if (set.length > 0) {
                     this.pointSets.push(set);
                 }
-                
-                
-
-
             }
-
-
-
         }
     }
 }
