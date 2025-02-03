@@ -13,8 +13,6 @@ function setup() {
     canvas.mouseClicked(onClick); 
     background(BACKGROUND);
 
-    calculator.charges.push(new Charge(300, 300, 10));
-    calculator.charges.push(new Charge(400, 300, 10));
     calculator.computeFieldPoints();
     
 }
