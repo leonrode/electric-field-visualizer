@@ -5,6 +5,8 @@
 This is a mini-project built to combine the discussion of electric field lines and computer graphics. Given the position of charged particles in the plane, we can draw lines indicating the direction of the electric field at various points in the plane.
 This tool is simply a cool way to visualize these field lines in space.
 
+![Demo image](public/image.png)
+
 ## usage
 
 Click anywhere on the plane to add a charge. Click on any charge to adjust the value of the charge. Click and slowly drag the charge around the plane to adjust the charge's position.
