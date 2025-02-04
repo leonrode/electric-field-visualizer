@@ -16,7 +16,6 @@ class Calculator {
         this.STROKE_COLOR = [0, 255, 0];
     }
 
-
     /**
      * Resets the computed point sets in order to restart the computation of the field lines
      */
@@ -28,7 +27,20 @@ class Calculator {
      * @param {Charge} charge 
      */
     addCharge(charge) {
+        // assign click handler for the Delete button
+        charge.deleteElement.mousePressed(() => this.deleteCharge(charge));
         this.charges.push(charge);
+    }
+    /**
+     * Deletes a charge based on its position
+     * @param {Charge} charge 
+     */
+    deleteCharge(charge) {
+        charge.inputElement.hide();
+        charge.deleteElement.hide();
+        
+        this.charges = this.charges.filter(_charge => _charge.x !== charge.x && _charge.y !== charge.y);
+        this.computeFieldPoints();
     }
 
     /**

@@ -26,7 +26,6 @@ function draw() {
 }
 
 function onClick() {
-
     // A click can only place a charge when:
     // 1. the user did not clicking on existing charge, and
     // 2. any charge had an input in focus (allow for defocus of input)
@@ -38,7 +37,7 @@ function onClick() {
     }
     
     if (!cannotPlaceNewCharge) {
-        calculator.charges.push(new Charge(mouseX, mouseY, 10));
+        calculator.addCharge(new Charge(mouseX, mouseY, 10, calculator.deleteCharge));
     }
 
     for (const charge of calculator.charges) {

@@ -5,9 +5,13 @@ class Charge {
      * @param {number} x The x coordinate of the charge's position
      * @param {number} y The y coordinate of the charge's position
      * @param {number} charge The charge's charge
+     * @param {Function} deleteHandler The function that is triggered when the delete button is pressed.
      */
-    constructor(x, y, charge) {
-        this.INPUT_ELEMENT_Y_OFFSET = 20;
+    constructor(x, y, charge, deleteHandler) {
+        this.size = 30;
+
+        this.INPUT_ELEMENT_Y_OFFSET = this.size;
+        this.DELETE_ELEMENT_Y_OFFSET = -this.size * 1.5;
         this.SIZE_FACTOR = 5;
         this.DEFAULT_SIZE = 5; // minimum size of charge
         this.ZERO_COLOR = [230, 230, 230];
@@ -21,14 +25,16 @@ class Charge {
         this.charge = charge;
 
         this.color = this.computeColor(); // color can depend on type of charge
-        this.size = 30;
-
+        
         this.inputElement = createInput(this.charge, "number"); // default value is the given charge
         this.inputElement.position(this.x, this.y + this.INPUT_ELEMENT_Y_OFFSET);
         this.inputElement.hide();
 
         this.isInputFocused = false;
-        
+
+        this.deleteElement = createButton("Delete");
+        this.deleteElement.position(this.x, this.y + this.DELETE_ELEMENT_Y_OFFSET);
+
     }
 
     /**
@@ -54,7 +60,7 @@ class Charge {
         this.element = circle(this.x, this.y, this.size);
     }
 
-     /**
+    /**
      * Refresh the properties of the charge based on the value of the associated
      * input charge.
      */
@@ -69,9 +75,11 @@ class Charge {
     clickHandler() {
         if (this.isMouseOverElement()) {
             this.inputElement.show();
+            this.deleteElement.show();
             this.isInputFocused = true;
         } else {
             this.inputElement.hide();
+            this.deleteElement.hide();
             this.isInputFocused = false;
         }
     }
@@ -84,6 +92,7 @@ class Charge {
             this.x = mouseX;
             this.y = mouseY;
             this.inputElement.position(this.x, this.y + this.INPUT_ELEMENT_Y_OFFSET);
+            this.deleteElement.position(this.x, this.y + this.DELETE_ELEMENT_Y_OFFSET);
         }
     }
 
