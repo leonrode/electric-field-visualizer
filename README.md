@@ -9,7 +9,7 @@ This tool is simply a cool way to visualize these field lines in space.
 
 ## usage
 
-Click anywhere on the plane to add a charge. Click on any charge to adjust the value of the charge. Click and slowly drag the charge around the plane to adjust the charge's position.
+Click anywhere on the plane to add a charge. Click on any charge to adjust the value of the charge. Click and slowly drag the charge around the plane to adjust the charge's position. Click the Delete button to delete the charge.
 
 ## notes
 
